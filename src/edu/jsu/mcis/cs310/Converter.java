@@ -3,6 +3,9 @@ package edu.jsu.mcis.cs310;
 import com.github.cliftonlabs.json_simple.*;
 import com.opencsv.*;
 
+import java.io*;
+import java.util.*;
+
 public class Converter {
     
     /*
@@ -77,8 +80,45 @@ public class Converter {
         String result = "{}"; // default return value; replace later!
         
         try {
-        
-            // INSERT YOUR CODE HERE
+            // Reading CSV
+            csvReader reader = new csvReader(new StringReader(csvString));
+            List<String[]> rows = reader.readAll();
+            
+            // JSON arrays
+            jsonArray prodNums = new jsonArray();
+            jsonArray colHeadings = new jsonArray();
+            jsonArray data = new jsonArray();
+            
+            // Column headings and CSV data rows
+            String[] headings = row.get(0);
+            for (String heading : headings) {
+                colHeadings.add(heading);
+            }
+            
+            for (int i = 1; i <  rows.size(); i++) {
+                String[] row = rows.get(i);
+                prodNums.add(row[0]); // prod. number column
+                jsonArray episodeData = new jsonArray();
+                for (int j = 1; j < row.length; j++) {
+                    if (j == 2 || j == 3) {
+                        episodeData.add(Integer.parseInt(row[j]));
+                    } else {
+                        episodeData.add(row[j]);
+                    }
+                }
+                
+                data.add(episodeData);
+            }
+            
+            // JSON object
+            jsonObject json = new jsonObject();
+            json.put("ProdNums", prodNums);
+            json.put("ColHeadings", colHeadings);
+            json.put("Data", data);
+            
+            // json-simple
+            result = Jsoner.serialize(json);
+            reader.close();
             
         }
         catch (Exception e) {
